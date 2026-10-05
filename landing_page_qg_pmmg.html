@@ -169,6 +169,16 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
         }
     </style>
+    <script>
+        // Desativar restauração de rolagem automática do navegador para sempre iniciar no topo ao atualizar
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        if (window.location.hash) {
+            history.replaceState(null, null, window.location.pathname + window.location.search);
+        }
+        window.scrollTo(0, 0);
+    </script>
 </head>
 <body class="bg-brand-black text-gray-200 font-sans antialiased selection:bg-brand-green selection:text-white overflow-x-hidden pb-16 md:pb-0">
 
@@ -740,6 +750,31 @@
                 }
             });
         }
+
+        // Garantir que a página sempre inicie no topo ao atualizar ou carregar
+        window.addEventListener('beforeunload', () => {
+            window.scrollTo(0, 0);
+        });
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 15);
+        });
+
+        // Rolagem suave para links internos sem expor #hash na URL
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId !== '#') {
+                    const targetElem = document.querySelector(targetId);
+                    if (targetElem) {
+                        e.preventDefault();
+                        targetElem.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
