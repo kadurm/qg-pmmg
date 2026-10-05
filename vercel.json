@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "pmmg.(?<domain>.*)"
+        }
+      ],
+      "destination": "/pmmg/:path*"
+    }
+  ]
+}
