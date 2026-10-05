@@ -251,21 +251,44 @@
                                     <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-green animate-pulse"></span>
                                     <span class="text-[10px] sm:text-[11px] font-heading font-bold tracking-wider uppercase text-gray-300">VÍDEO OFICIAL • PROF. MICHAEL</span>
                                 </div>
-                                <div class="text-[10px] sm:text-[11px] text-brand-silver font-mono">0:53</div>
+                                <!-- Audio Mute/Unmute toggle (sem opções de pausar/avançar) -->
+                                <button id="video-mute-btn" type="button" aria-label="Controle de áudio" class="text-brand-silver hover:text-brand-green transition text-xs flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded focus:outline-none">
+                                    <i id="mute-icon" class="fa-solid fa-volume-high text-brand-green text-xs"></i>
+                                    <span id="mute-label" class="text-[10px] uppercase font-bold tracking-wider text-brand-silver hidden sm:inline">Som</span>
+                                </button>
                             </div>
 
-                            <!-- Video Element (16:9 Widescreen) -->
-                            <div class="relative aspect-video rounded-lg sm:rounded-xl overflow-hidden bg-black border border-white/10 shadow-inner">
+                            <!-- Video Element Container (Sem controles nativos, sem pause, sem scrub) -->
+                            <div id="video-wrapper" class="relative aspect-video rounded-lg sm:rounded-xl overflow-hidden bg-black border border-white/10 shadow-inner group cursor-pointer select-none">
                                 <video id="hero-video"
-                                       controls
                                        playsinline
+                                       webkit-playsinline
                                        preload="metadata"
                                        poster="Midia/PMMG/poster.jpg"
-                                       class="w-full h-full object-cover">
+                                       class="w-full h-full object-cover pointer-events-none"
+                                       oncontextmenu="return false;">
                                     <source src="Midia/PMMG/%5B00%5D%5BVIDEO%5D%5BPMMG%5D.mp4" type="video/mp4">
                                     <source src="Midia/PMMG/[00][VIDEO][PMMG].mp4" type="video/mp4">
                                     Seu navegador não suporta a reprodução deste vídeo.
                                 </video>
+
+                                <!-- Play Overlay Inicial -->
+                                <div id="video-play-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/45 backdrop-blur-[2px] transition-all duration-300 hover:bg-black/35">
+                                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                                        <div class="absolute inset-0 rounded-full bg-brand-green/30 animate-ping"></div>
+                                        <div class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-green hover:bg-brand-greenHover text-white flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.7)] transform hover:scale-105 transition-all">
+                                            <i class="fa-solid fa-play text-xl sm:text-2xl ml-1 text-white"></i>
+                                        </div>
+                                    </div>
+                                    <span id="play-overlay-text" class="mt-3 text-[11px] sm:text-xs font-heading uppercase tracking-wider font-bold text-white bg-black/80 px-3 py-1 rounded-full border border-white/20 shadow">
+                                        Assistir Apresentação
+                                    </span>
+                                </div>
+
+                                <!-- Barra de Progresso Visual Customizada (SEM porcentagem/números) -->
+                                <div class="absolute bottom-0 left-0 right-0 h-1.5 sm:h-2 bg-black/75 z-10 overflow-hidden pointer-events-none">
+                                    <div id="video-custom-progress" class="h-full w-0 bg-gradient-to-r from-emerald-500 via-brand-green to-emerald-300 shadow-[0_0_12px_rgba(34,197,94,0.9)] transition-all duration-100 ease-linear" style="width: 0%;"></div>
+                                </div>
                             </div>
                         </div>
                         
@@ -622,6 +645,101 @@
                 }
             }
         });
+
+        // Custom Video Player Logic (Sem pausa, sem avanço, sem tempo numérico)
+        const videoWrapper = document.getElementById('video-wrapper');
+        const heroVideo = document.getElementById('hero-video');
+        const playOverlay = document.getElementById('video-play-overlay');
+        const playOverlayText = document.getElementById('play-overlay-text');
+        const videoProgress = document.getElementById('video-custom-progress');
+        const muteBtn = document.getElementById('video-mute-btn');
+        const muteIcon = document.getElementById('mute-icon');
+        const muteLabel = document.getElementById('mute-label');
+
+        if (videoWrapper && heroVideo) {
+            // Iniciar reprodução com áudio no clique
+            videoWrapper.addEventListener('click', (e) => {
+                if (e.target.closest('#video-mute-btn')) return;
+
+                if (heroVideo.ended) {
+                    heroVideo.currentTime = 0;
+                    if (videoProgress) videoProgress.style.width = '0%';
+                    heroVideo.play();
+                    if (playOverlay) playOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    return;
+                }
+
+                if (heroVideo.paused) {
+                    heroVideo.play().then(() => {
+                        if (playOverlay) playOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    }).catch(() => {
+                        // Se o navegador barrar áudio sem interação inicial prévia, inicia mudo
+                        heroVideo.muted = true;
+                        if (muteIcon) muteIcon.className = 'fa-solid fa-volume-xmark text-yellow-400 text-xs';
+                        if (muteLabel) muteLabel.textContent = 'Mudo';
+                        heroVideo.play();
+                        if (playOverlay) playOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    });
+                }
+                // Quando o vídeo já está tocando, o clique NÃO PAUSA nem avança!
+            });
+
+            // Controle de Mudo / Som (sem expor controle de pause ou scrub)
+            if (muteBtn) {
+                muteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    heroVideo.muted = !heroVideo.muted;
+                    if (heroVideo.muted) {
+                        if (muteIcon) muteIcon.className = 'fa-solid fa-volume-xmark text-yellow-400 text-xs';
+                        if (muteLabel) muteLabel.textContent = 'Mudo';
+                    } else {
+                        if (muteIcon) muteIcon.className = 'fa-solid fa-volume-high text-brand-green text-xs';
+                        if (muteLabel) muteLabel.textContent = 'Som';
+                    }
+                });
+            }
+
+            // Barra de Progresso Personalizada:
+            // - Primeiros 30 segundos: avança rapidamente até 75% (2.5% por segundo)
+            // - Próximos 30 segundos: avança suavemente os 25% restantes até 100%
+            // Totalmente visual, sem porcentagem nem números.
+            function updateCustomProgress() {
+                if (!heroVideo.paused && !heroVideo.ended) {
+                    const cur = heroVideo.currentTime;
+                    let pct = 0;
+                    if (cur <= 30) {
+                        pct = (cur / 30) * 75;
+                    } else {
+                        const phase2Duration = (heroVideo.duration && heroVideo.duration > 30) ? (heroVideo.duration - 30) : 30;
+                        pct = 75 + ((cur - 30) / phase2Duration) * 25;
+                    }
+                    pct = Math.min(100, Math.max(0, pct));
+                    if (videoProgress) {
+                        videoProgress.style.width = pct + '%';
+                    }
+                }
+                requestAnimationFrame(updateCustomProgress);
+            }
+            requestAnimationFrame(updateCustomProgress);
+
+            // Ao concluir o vídeo
+            heroVideo.addEventListener('ended', () => {
+                if (videoProgress) videoProgress.style.width = '100%';
+                if (playOverlay) {
+                    playOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    if (playOverlayText) playOverlayText.textContent = 'Assistir Novamente';
+                }
+            });
+
+            // Bloquear atalhos de teclado (barra de espaço, K, setas) que poderiam pausar ou avançar
+            window.addEventListener('keydown', (e) => {
+                if (['Space', 'KeyK', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                    if (document.activeElement === heroVideo || document.activeElement === videoWrapper) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
