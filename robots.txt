@@ -1,0 +1,5 @@
+# robots.txt for qg-pmmg
+User-agent: *
+Allow: /
+
+Sitemap: https://qg-pmmg.vercel.app/sitemap.xml
