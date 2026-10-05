@@ -2,14 +2,44 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/:path*",
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "pmmg.qgpmmg.com.br"
+        }
+      ],
+      "destination": "/pmmg/index.html"
+    },
+    {
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "pmmg.(?<domain>.*)"
         }
       ],
-      "destination": "/pmmg/:path*"
+      "destination": "/pmmg/index.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "pmmg.qgpmmg.com.br"
+        }
+      ],
+      "destination": "/pmmg/index.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "pmmg.(?<domain>.*)"
+        }
+      ],
+      "destination": "/pmmg/index.html"
     }
   ]
 }
