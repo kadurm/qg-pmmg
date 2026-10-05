@@ -9,8 +9,8 @@
     <video:video>
       <video:thumbnail_loc>https://qg-pmmg.vercel.app/Midia/PMMG/poster.jpg</video:thumbnail_loc>
       <video:title>Apresentação Oficial Pack 4 Simulados PMMG - Prof. Michael</video:title>
-      <video:description>Conheça a estrutura dos 4 simulados preparatórios para a Polícia Militar de Minas Gerais com gabarito comentado e tira-dúvidas em vídeo.</video:description>
-      <video:content_loc>https://qg-pmmg.vercel.app/Midia/PMMG/videoPMMG.mp4</video:content_loc>
+      <video:description>Conheça a estrutura dos 4 simulados preparatórios para a Polícia Militar de Minas Gerais com 50 questões por caderno (25 de Língua Portuguesa), gabarito comentado e tira-dúvidas em vídeo.</video:description>
+      <video:content_loc>https://qg-pmmg.vercel.app/Midia/PMMG/%5B00%5D%5BVIDEO%5D%5BPMMG%5D.mp4</video:content_loc>
       <video:duration>53</video:duration>
       <video:publication_date>2026-10-05T14:00:00-03:00</video:publication_date>
       <video:family_friendly>yes</video:family_friendly>
